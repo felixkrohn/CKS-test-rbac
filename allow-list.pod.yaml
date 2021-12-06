@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: allow-list
+  name: allow-list
+  namespace: test-rbac
+spec:
+  containers:
+  - command:
+    - sleep
+    - "3600"
+    image: bitnami/kubectl:latest
+    name: allow-list
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  serviceAccountName: allow-list
+status: {}

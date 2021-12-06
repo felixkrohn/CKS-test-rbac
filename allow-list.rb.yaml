@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: allow-list
+  namespace: test-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: allow-list
+subjects:
+- kind: ServiceAccount
+  name: allow-list
+  namespace: test-rbac
