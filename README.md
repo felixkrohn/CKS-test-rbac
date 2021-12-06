@@ -1,5 +1,12 @@
 # CKS-test-rbac
 show difference between `list` and `get` calls on secrets.
+TL;DR:
+* with list access you can get the list of secrets
+* with list access you can get the content of all secrets
+* with get access can get the content of alls ecrets of which you know the name
+* with get access cannot get the list of all secrets
+
+
 * `kc create namespace test-rbac -oyaml > test-rbac.ns.yaml`
 
 * `kc -n test-rbac create serviceaccount allow-list --dry-run -oyaml > allow-list.sa.yaml`
@@ -24,10 +31,51 @@ default-token-9kw2v      kubernetes.io/service-account-token   3      9m7s
 $ kc -n test-rbac exec allow-list -- kubectl get secrets default-token-9kw2v -oyaml
 Error from server (Forbidden): secrets "default-token-9kw2v" is forbidden: User "system:serviceaccount:test-rbac:allow-list" cannot get resource "secrets" in API group "" in the namespace "test-rbac"
 command terminated with exit code 1
+$ kc -n test-rbac exec allow-list -- kubectl get secrets -oyaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    ca.crt: [...]
+    namespace: dGVzdC1yYmFj
+    token: [...]
+  kind: Secret
+  metadata: [...]
+  type: kubernetes.io/service-account-token
+- apiVersion: v1
+  data:
+    ca.crt: [...]
+    namespace: dGVzdC1yYmFj
+    token: [...]
+  kind: Secret
+  metadata: [...]
+  type: kubernetes.io/service-account-token
+- apiVersion: v1
+  data:
+    ca.crt: [...]
+    namespace: dGVzdC1yYmFj
+    token: [...]
+  kind: Secret
+  metadata: [...]
+  type: kubernetes.io/service-account-token
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
+
 ```
 ## allow-get
 ```
 $ kc -n test-rbac exec allow-get -- kubectl get secrets
+Error from server (Forbidden): secrets is forbidden: User "system:serviceaccount:test-rbac:allow-get" cannot list resource "secrets" in API group "" in the namespace "test-rbac"
+command terminated with exit code 1
+$ kc -n test-rbac exec allow-get -- kubectl get secrets -oyaml
+apiVersion: v1
+items: []
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
 Error from server (Forbidden): secrets is forbidden: User "system:serviceaccount:test-rbac:allow-get" cannot list resource "secrets" in API group "" in the namespace "test-rbac"
 command terminated with exit code 1
 $ kc -n test-rbac exec allow-get -- kubectl get secrets default-token-9kw2v -oyaml
