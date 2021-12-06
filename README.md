@@ -6,19 +6,29 @@ TL;DR:
 * with get access can get the content of alls ecrets of which you know the name
 * with get access cannot get the list of all secrets
 
+## create ressources:
+```
+kc create namespace test-rbac -oyaml > test-rbac.ns.yaml
 
-* `kc create namespace test-rbac -oyaml > test-rbac.ns.yaml`
+kc -n test-rbac create serviceaccount allow-list --dry-run -oyaml > allow-list.sa.yaml
+kc -n test-rbac create role allow-list --verb=list --resource=secrets --dry-run -oyaml > allow-list.role.yaml
+kc -n test-rbac create rolebinding allow-list --role=allow-list --serviceaccount=test-rbac:allow-list --dry-run > allow-list.rb.yaml
 
-* `kc -n test-rbac create serviceaccount allow-list --dry-run -oyaml > allow-list.sa.yaml`
-* `kc -n test-rbac create role allow-list --verb=list --resource=secrets --dry-run -oyaml > allow-list.role.yaml`
-* `kc -n test-rbac create rolebinding allow-list --role=allow-list --serviceaccount=test-rbac:allow-list --dry-run > allow-list.rb.yaml
+kc -n test-rbac create serviceaccount allow-get --dry-run -oyaml > allow-get.sa.yaml
+kc -n test-rbac create role allow-get --verb=get --resource=secrets --dry-run -oyaml > allow-get.role.yaml
+kc -n test-rbac create rolebinding allow-get --role=allow-get --serviceaccount=test-rbac:allow-get --dry-run > allow-get.rb.yaml
 
-* `kc -n test-rbac create serviceaccount allow-get --dry-run -oyaml > allow-get.sa.yaml`
-* `kc -n test-rbac create role allow-get --verb=get --resource=secrets --dry-run -oyaml > allow-get.role.yaml`
-* `kc -n test-rbac create rolebinding allow-get --role=allow-get --serviceaccount=test-rbac:allow-get --dry-run > allow-get.rb.yaml`
+kc -n test-rbac run --generator=run-pod/v1 --image bitnami/kubectl:latest --serviceaccount allow-list allow-list --dry-run -oyaml --command -- sleep 3600 > allow-list.pod.yaml
+kc -n test-rbac run --generator=run-pod/v1 --image bitnami/kubectl:latest --serviceaccount allow-get allow-get --dry-run -oyaml --command -- sleep 3600 > allow-get.pod.yaml
+```
 
-* `kc -n test-rbac run --generator=run-pod/v1 --image bitnami/kubectl:latest --serviceaccount allow-list allow-list --dry-run -oyaml --command -- sleep 3600 > allow-list.pod.yaml`
-* `kc -n test-rbac run --generator=run-pod/v1 --image bitnami/kubectl:latest --serviceaccount allow-get allow-get --dry-run -oyaml --command -- sleep 3600 > allow-get.pod.yaml`
+## exec
+```
+$ for i in test-rbac.ns.yaml *.sa.yaml *.role.yaml *.rb.yaml *.pod.yaml
+do
+  kc create -n test-rbac -f $i.yaml
+done
+```
 
 ## allow-list
 
